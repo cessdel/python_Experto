@@ -37,7 +37,7 @@ while True:
     # Esperar hasta que se presione la tecla 's' para tomar la foto
     if cv2.waitKey(1) & 0xFF == ord('s'):
         # Guardar la foto en la carpeta 'images'
-        foto_path = f'images/{nombre}.jpg'
+        foto_path = f'images/{usuario_id}{nombre}.jpg'
         cv2.imwrite(foto_path, frame)
         break
 
