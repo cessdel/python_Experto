@@ -2,7 +2,10 @@ import tkinter as tk
 import sqlite3
 import random
 from tkinter import ttk
+from tkinter import simpledialog
+from tkinter import messagebox
 import cv2
+import vision
 
 
 
@@ -58,33 +61,69 @@ class InicioWindow:
         self.treeview.column("nombre", width=100)
         self.treeview.column("apellido", width=100)
         self.treeview.column("edad", width=100)
+        
 
         # Establece la ubicación del Treeview en la interfaz
         self.treeview.place(x=50, y=350, width=600, height=150) 
+        self.cargar_registros()
     def cargar_registros(self):
         conn = sqlite3.connect('usuarios.db')
         cursor = conn.cursor()
+        conn = sqlite3.connect("usuarios.db")
+        cursor.execute("CREATE TABLE IF NOT EXISTS tabla (id TEXT PRIMARY KEY, nombre TEXT, apellido TEXT, edad TEXT, receta TEXT)")
 
         # Obtener los registros de la base de datos
         cursor.execute("SELECT * FROM tabla")
         registros = cursor.fetchall()
-
+        if registros:
         # Insertar los registros en el Treeview
-        for registro in registros:
-            self.treeview.insert("", "end", text=registro[0], values=(registro[1], registro[2], registro[3]))
+            for registro in registros:
+                self.treeview.insert("", "end", text=registro[0], values=(registro[1], registro[2], registro[3]))
 
         conn.close()   
     def consultar(self):
-        app = tk.Toplevel()
-        root = ConsultaWindow(app)
-        app.resizable(0,0)
-        app.mainloop()
+        self.obtener_nombre()
+        
         
     def registrar(self):
         app = tk.Toplevel()
         window = RegistroWindow(app,self)
         app.resizable(0,0)
         app.mainloop()
+    def obtener_nombre(self):
+        nombre = simpledialog.askstring("Nombre", "Ingrese el id del paciente:")
+        self.buscar_id(nombre)
+        if nombre:
+            self.ingresar(nombre)
+    
+    def ingresar(self, nombre): 
+        resultado = vision.reconocimiento_facial(nombre)
+        if resultado== 0:
+            print("Nombre ingresado:", resultado)
+            messagebox.showinfo('Exito','Coincidencia encontrada')
+            app = tk.Toplevel()
+            root = ConsultaWindow(app)
+            app.resizable(0,0)
+            app.mainloop()
+        else:
+            messagebox.showinfo('Error','No hay coincidencia ')
+            print('reconoce')
+    def buscar_id(self, id_busqueda):
+        conn = sqlite3.connect('usuarios.db')
+        cursor = conn.cursor()
+
+        # Buscar el ID en la base de datos
+        cursor.execute("SELECT * FROM tabla WHERE id = ?", (id_busqueda,))
+        registros = cursor.fetchall()
+
+        if len(registros) > 0:
+            messagebox.showinfo("Resultado", f"Se encontraron {len(registros)} coincidencias para el ID {id_busqueda}")
+        else:
+            messagebox.showinfo("Resultado", f"No se encontraron coincidencias para el ID {id_busqueda}")
+
+        conn.close()
+                
+       
         
 
 class ConsultaWindow:
@@ -154,6 +193,7 @@ class RegistroWindow:
         self.nombre = tk.StringVar()
         self.apellido = tk.StringVar()
         self.edad = tk.StringVar()
+        self.receta = tk.StringVar()
         
         # Establecemos el tamaño de la raíz
         root.geometry("500x600") 
@@ -187,6 +227,9 @@ class RegistroWindow:
         #Edad
         lblEdad=tk.Label(root,text="Edad",fg="black",font=("Verdana",15)).place(x=140, y=260)
         enEdad=tk.Entry(root,justify=tk.CENTER,textvariable=self.edad).place(x=140, y=300)
+         #Receta
+        lblRecera=tk.Label(root,text="Receta",fg="black",font=("Verdana",15)).place(x=140, y=340)
+        enReceta=tk.Entry(root,justify=tk.CENTER,textvariable=self.receta).place(x=140, y=400)
                 
         #Botones
         btnGuardar=tk.Button(root, text="Guardar",font=("Verdana",15),command=self.guardar)
@@ -198,23 +241,24 @@ class RegistroWindow:
     def guardar(self):
         conn = sqlite3.connect("usuarios.db")
         cursor = conn.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS tabla (id TEXT PRIMARY KEY, nombre TEXT, apellido TEXT, edad TEXT)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS tabla (id TEXT PRIMARY KEY, nombre TEXT, apellido TEXT, edad TEXT, receta TEXT)")
         nombre = self.nombre.get()
         apellido = self.apellido.get()
         edad = self.edad.get()
+        receta = self.receta.get()
         
        
 
         # Realiza la operación de inserción
         id_aleatorio = self.generar_id_aleatorio(nombre)  # Implementa la función que genera el id aleatorio
-        cursor.execute("INSERT INTO tabla (id, nombre, apellido, edad) VALUES (?, ?, ?, ?)",
-                   (id_aleatorio, nombre, apellido, edad))
+        cursor.execute("INSERT INTO tabla (id, nombre, apellido, edad, receta) VALUES (?, ?, ?, ?,?)",
+                   (id_aleatorio, nombre, apellido, edad,receta))
         self.capturarImagen(id_aleatorio)
 
         # Guarda los cambios y cierra la conexión
         conn.commit()
         conn.close()
-        self.inicio_window.treeview.insert("", "end", text=id_aleatorio, values=(nombre, apellido, edad))
+        self.inicio_window.treeview.insert("", "end", text=id_aleatorio, values=(nombre, apellido, edad,receta))
         InicioWindow.cargar_registros()
     def generar_id_aleatorio(self,nombre):
         numero_aleatorio = random.randint(1, 1000)  # Genera un número aleatorio entre 1 y 1000
