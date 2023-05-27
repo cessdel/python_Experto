@@ -148,42 +148,64 @@ class ConsultaWindow:
         root.title("Sistema experto IA")
         root.iconbitmap("src/logo.ico")
         #root.configure(bg='white')
+        #Variables
+        self.peso = tk.IntVar()
+        self.altura = tk.DoubleVar()
+        self.presionSis = tk.IntVar()
+        self.presionDias = tk.IntVar()
+        self.frecuencia = tk.IntVar()
+        self.glucosa = tk.IntVar()
+        self.receta = tk.StringVar()
         
         #Etiquetas
         lblPrin=tk.Label(root,text="Consulta",fg="Green",font=("Verdana",23)).place(x=280, y=10)
         
         lblPeso=tk.Label(root,text="Peso",fg="black",font=("Verdana",15)).place(x=130, y=75)
-        enPeso=tk.Entry(root,justify=tk.CENTER).place(x=100, y=110)
+        enPeso=tk.Entry(root,justify=tk.CENTER,textvariable=self.peso).place(x=100, y=110)
         lblReceta=tk.Label(root,text="Receta",fg="black",font=("Verdana",15)).place(x=480, y=75)
-        enReceta=tk.Entry(root,justify=tk.CENTER, width=30, font=('Arial 12')).place(x=380, y=110)
+        enReceta=tk.Entry(root,justify=tk.CENTER,textvariable= self.receta, width=30, font=('Arial 12')).place(x=380, y=110)
         
         lblAltura=tk.Label(root,text="Altura",fg="black",font=("Verdana",15)).place(x=130, y=140)
-        enAltura=tk.Entry(root,justify=tk.CENTER).place(x=100, y=180)
+        enAltura=tk.Entry(root,justify=tk.CENTER,textvariable=self.altura).place(x=100, y=180)
         
         lblPS=tk.Label(root,text="Presión Sistólica",fg="black",font=("Verdana",15)).place(x=80, y=210)
-        enPS=tk.Entry(root,justify=tk.CENTER).place(x=100, y=250)
+        enPS=tk.Entry(root,justify=tk.CENTER, textvariable=self.presionSis).place(x=100, y=250)
         
         lblPD=tk.Label(root,text="Presión Diastólica",fg="black",font=("Verdana",15)).place(x=70, y=280)
-        enPD=tk.Entry(root,justify=tk.CENTER).place(x=100, y=320)
+        enPD=tk.Entry(root,justify=tk.CENTER,textvariable=self.presionDias).place(x=100, y=320)
         lblNota=tk.Label(root,text="Notas Adicionales",fg="black",font=("Verdana",15)).place(x=435, y=280)
         enNota=tk.Entry(root,justify=tk.CENTER, width=30, font=('Arial 12')).place(x=380, y=320)
         
         lblFa=tk.Label(root,text="Frecuencia Cardíaca",fg="black",font=("Verdana",15)).place(x=50, y=350)
-        enFC=tk.Entry(root,justify=tk.CENTER).place(x=100, y=390)
+        enFC=tk.Entry(root,justify=tk.CENTER, textvariable= self.frecuencia).place(x=100, y=390)
         
         lblG=tk.Label(root,text="Glucosa",fg="black",font=("Verdana",15)).place(x=120, y=420)
-        enG=tk.Entry(root,justify=tk.CENTER).place(x=100, y=460)
+        enG=tk.Entry(root,justify=tk.CENTER,textvariable=self.glucosa).place(x=100, y=460)
         
 
         #Botones
-        btnIngresar=tk.Button(root, text="Ingresar",font=("Verdana",15))
+        btnIngresar=tk.Button(root, text="Ingresar",font=("Verdana",15),command=self.ingresar)
         btnIngresar.place(x=105, y=500)
         btnSalir=tk.Button(root, text="Salir",font=("Verdana",15),command=root.destroy)
         btnSalir.place(x=485, y=500)
         
     def ingresar(self): 
+        altura = self.altura.get()
+        peso=self.peso.get()
+        presionDias= self.presionDias.get()
+        presionSis=self.presionSis.get()
+        frecuencia= self.frecuencia.get()
+        glucosa = self.glucosa.get()
+        receta = self.receta.get()
+        
+        self.imc(altura, peso)
         #Codificacion para ingresar a la base de datos
         print("")
+        
+    def imc(self,altura, peso):
+        imc= peso/(altura**2)
+        print('IMC es:',imc)
+        
 class RegistroWindow:
     
 
