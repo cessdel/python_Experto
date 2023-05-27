@@ -6,6 +6,7 @@ from tkinter import simpledialog
 from tkinter import messagebox
 import cv2
 import vision
+import conocimientos
 
 
 
@@ -127,6 +128,7 @@ class InicioWindow:
         
 
 class ConsultaWindow:
+    diagnostico=''
     # Le pasamos el componente raíz al constructor
     def __init__(self, root):
                
@@ -162,8 +164,6 @@ class ConsultaWindow:
         
         lblPeso=tk.Label(root,text="Peso",fg="black",font=("Verdana",15)).place(x=130, y=75)
         enPeso=tk.Entry(root,justify=tk.CENTER,textvariable=self.peso).place(x=100, y=110)
-        lblReceta=tk.Label(root,text="Receta",fg="black",font=("Verdana",15)).place(x=480, y=75)
-        enReceta=tk.Entry(root,justify=tk.CENTER,textvariable= self.receta, width=30, font=('Arial 12')).place(x=380, y=110)
         
         lblAltura=tk.Label(root,text="Altura",fg="black",font=("Verdana",15)).place(x=130, y=140)
         enAltura=tk.Entry(root,justify=tk.CENTER,textvariable=self.altura).place(x=100, y=180)
@@ -173,8 +173,6 @@ class ConsultaWindow:
         
         lblPD=tk.Label(root,text="Presión Diastólica",fg="black",font=("Verdana",15)).place(x=70, y=280)
         enPD=tk.Entry(root,justify=tk.CENTER,textvariable=self.presionDias).place(x=100, y=320)
-        lblNota=tk.Label(root,text="Notas Adicionales",fg="black",font=("Verdana",15)).place(x=435, y=280)
-        enNota=tk.Entry(root,justify=tk.CENTER, width=30, font=('Arial 12')).place(x=380, y=320)
         
         lblFa=tk.Label(root,text="Frecuencia Cardíaca",fg="black",font=("Verdana",15)).place(x=50, y=350)
         enFC=tk.Entry(root,justify=tk.CENTER, textvariable= self.frecuencia).place(x=100, y=390)
@@ -196,15 +194,24 @@ class ConsultaWindow:
         presionSis=self.presionSis.get()
         frecuencia= self.frecuencia.get()
         glucosa = self.glucosa.get()
-        receta = self.receta.get()
         
         self.imc(altura, peso)
         #Codificacion para ingresar a la base de datos
         print("")
+        self.obtenerNivel('Glucosa',glucosa)
+        self.obtenerNivel('Presión diastólica',presionDias)
+        self.obtenerNivel('Presión sistólica',presionSis)
+        self.obtenerNivel('Frecuencia cardíaca',frecuencia)
         
     def imc(self,altura, peso):
         imc= peso/(altura**2)
+        self.obtenerNivel('IMC',imc)
         print('IMC es:',imc)
+        
+    def obtenerNivel(self,tipo,num):
+        resultado=conocimientos.buscar_nivel(tipo,num)
+        messagebox.showinfo('Resultado',resultado)
+        print('Nivel',resultado)
         
 class RegistroWindow:
     
